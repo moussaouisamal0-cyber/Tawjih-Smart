@@ -2,25 +2,28 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>التوجيه الذكي</title>
+<title>🤖 التوجيه الذكي</title>
 <style>
 body{margin:0;font-family:Tahoma;background:#eef2ff;text-align:center}
 header{background:linear-gradient(135deg,#3f51b5,#2196f3);color:#fff;padding:30px}
 section{max-width:950px;margin:30px auto;background:#fff;padding:30px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.15)}
-button{width:90%;padding:14px;margin:10px auto;border:none;border-radius:16px;background:#ff9800;color:#fff;font-size:16px;cursor:pointer}
-button:hover{background:#f57c00}
-.hidden{display:none}
-.back{background:#607d8b}
-.result{text-align:right;line-height:1.9;font-size:16px}
-.progress{height:10px;background:#ddd;border-radius:10px;margin:20px 0}
-.bar{height:100%;width:0%;background:#4caf50;border-radius:10px}
+button{width:90%;padding:14px;margin:10px auto;border:none;border-radius:16px;font-size:16px;cursor:pointer}
+button:hover{opacity:0.9;}
+.back{background:#607d8b;color:#fff}
+.result{text-align:right;line-height:1.9;font-size:16px;padding:10px}
+.progress{height:20px;background:#ddd;border-radius:10px;margin:20px auto;width:90%;overflow:hidden}
+.bar{height:100%;width:0%;border-radius:10px;transition:width 0.5s}
 input{padding:12px;width:90%;border-radius:12px;font-size:16px}
+#ofppt-cmc{background:#009688;color:#fff;padding:20px;border-radius:16px;margin:20px 0;text-align:right;}
+#ofppt-cmc button{background:#00796b;color:#fff;padding:10px;border:none;border-radius:12px;cursor:pointer;width:auto;margin-top:10px;}
+#comparison{background:#ffe0b2;padding:15px;border-radius:12px;margin-top:15px;text-align:right;}
+.sci{color:#1e88e5;} .eco{color:#43a047;} .ad{color:#f4511e;} .tech{color:#8e24aa;} .cmc{color:#009688;}
 </style>
 </head>
 <body>
 
 <header>
-<h1>🎓 التوجيه الذكي</h1>
+<h1>🤖 التوجيه الذكي</h1>
 <p>اختار مستقبلك بوعي، ماشي بالصدفة</p>
 </header>
 
@@ -40,23 +43,44 @@ input{padding:12px;width:90%;border-radius:12px;font-size:16px}
 </section>
 
 <section id="note" class="hidden">
-<h3>دخل المعدل ديالك</h3>
-<input type="number" id="avg" placeholder="مثال: 14.50">
+<h3>دخل ميولك</h3>
 <button onclick="showResult()">عرض النتيجة</button>
 </section>
 
 <section id="result" class="hidden">
 <h2>🔎 النتيجة النهائية</h2>
 <div id="output" class="result"></div>
-<button onclick="showCMC()" style="background:#009688">➡️ معلومات OFPPT – CMC</button>
-<button onclick="goHome()">⬅ رجوع</button>
+<button onclick="showOFPPTCMC()">➡️ معلومات OFPPT – CMC</button>
+<button class="back" onclick="goHome()">⬅ رجوع</button>
+</section>
+
+<section id="ofppt-cmc" class="hidden">
+<h3>🏫 OFPPT – CMC</h3>
+<p>📊 مقارنة بين OFPPT العام وCMC:</p>
+<ul>
+<li>✅ <strong>OFPPT:</strong> تطبيقي، يركز على المهارات التقنية والمهنية</li>
+<li>✅ <strong>CMC:</strong> أكثر تجاري، يركز على التسيير والمبيعات والمهارات العملية</li>
+</ul>
+<p>🌟 <strong>آفاق العمل:</strong> التجارة، التسويق، المقاولات الصغيرة والمتوسطة</p>
+<button onclick="showComparison()">➡️ قارن تخصصين</button>
+<button onclick="hideOFPPTCMC()">⬅ رجوع</button>
+
+<div id="comparison" class="hidden">
+<h4>📌 مقارنة بين OFPPT العام وCMC</h4>
+<ul>
+<li>OFPPT: تطبيقي، يركز على المهارات التقنية والمهنية</li>
+<li>CMC: تجاري، يركز على التسيير والمبيعات والمهارات العملية</li>
+<li>آفاق OFPPT: IT، الصناعة، الخدمات التقنية</li>
+<li>آفاق CMC: التجارة، التسويق، المقاولات الصغيرة والمتوسطة</li>
+</ul>
+<button onclick="hideComparison()" style="background:#ff7043;color:#fff;padding:10px;border:none;border-radius:12px;">⬅ إغلاق المقارنة</button>
+</div>
 </section>
 
 <script>
-let level="",i=0;
-let scores={sci:0,eco:0,ad:0,tech:0};
+let level="", i=0;
+let scores={sci:0, eco:0, ad:0, tech:0, cmc:0};
 
-// الأسئلة بصيغة "كتفضل ..."
 const questions={
 "9":[
 {q:"كتفضل الحسابات والرياضيات؟",t:"sci"},
@@ -80,146 +104,76 @@ const questions={
 ]
 };
 
+const tips = {
+"9": "📌 نصيحة: ركز على ميولاتك وطور مهاراتك الأساسية.",
+"bac1": "📌 نصيحة: اختار الشعبة التي تلائم قدراتك وميولاتك.",
+"bac": "📌 نصيحة: فكر في المستقبل المهني قبل اختيار التخصص."
+};
+
+const verses = {
+"9": "💡 آية تحفيزية: {وَقُلِ اعْمَلُوا فَسَيَرَى اللَّهُ عَمَلَكُمْ} [التوبة:105]",
+"bac1": "💡 آية تحفيزية: {وَسَارِعُوا إِلَى مَغْفِرَةٍ مِنْ رَبِّكُمْ} [الحديد:21]",
+"bac": "💡 آية تحفيزية: {وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَى} [النجم:39]"
+};
+
 function start(lv){
-level=lv;i=0;
-// فقط الباك عنده cmc
-scores={sci:0,eco:0,ad:0,tech:0};
+level=lv; i=0;
+scores={sci:0, eco:0, ad:0, tech:0};
 if(level==="bac") scores.cmc=0;
-hideAll();quiz.classList.remove("hidden");
-showQ();
+hideAll(); document.getElementById("quiz").classList.remove("hidden"); showQ();
+updateBar(0);
 }
 
 function showQ(){
-question.textContent=questions[level][i].q;
-bar.style.width=(i/questions[level].length*100)+"%";
+document.getElementById("question").textContent = questions[level][i].q;
+updateBar(i/questions[level].length*100);
+}
+
+function updateBar(percent){
+document.getElementById("bar").style.width = percent+"%";
+document.getElementById("bar").style.background = level==="9"?"#1e88e5":level==="bac1"?"#43a047":"#8e24aa";
 }
 
 function answer(v){
 if(v) scores[questions[level][i].t]++;
-i++;
-i<questions[level].length?showQ():askNote();
+i++; i<questions[level].length ? showQ() : askNote();
 }
 
-function askNote(){
-hideAll();
-note.classList.remove("hidden");
-}
+function askNote(){hideAll(); document.getElementById("note").classList.remove("hidden");}
 
 function showResult(){
-hideAll();
-result.classList.remove("hidden");
-let avg=parseFloat(document.getElementById("avg").value)||0;
+hideAll(); document.getElementById("result").classList.remove("hidden");
 let best=Object.keys(scores).sort((a,b)=>scores[b]-scores[a])[0];
-let html="";
+let icons={sci:"🔬", eco:"📊", ad:"📚", tech:"⚙️", cmc:"💼"};
+let colors={sci:"sci", eco:"eco", ad:"ad", tech:"tech", cmc:"cmc"};
+let html=`<span class="${colors[best]}">${icons[best]}</span> ${tips[level]}<br>${verses[level]}<br><br>`;
 
-// ====== تاسعة إعدادي ======
 if(level==="9"){
-html=`
-🧭 المسار الأنسب ليك:<br><br>
-${best==="sci"?"🔬 علمي":
-best==="eco"?"📊 اقتصادي":
-best==="ad"?"📚 أدبي":
-"⚙️ تقني"}
-`;
+html+=best==="sci"?"🔬 مسار علمي":best==="eco"?"📊 مسار اقتصادي":best==="ad"?"📚 مسار أدبي":"⚙️ مسار تقني";
 }
-
-// ====== أولى باك ======
 if(level==="bac1"){
-if(best==="sci"){
-html=`
-🎓 الشعب العلمية:<br>
-✅ العلوم التجريبية (آفاق: الهندسة، العلوم الطبيعية، الطب)<br>
-✅ العلوم الرياضية A (آفاق: الهندسة، الاقتصاد، علوم الكمبيوتر)<br>
-✅ العلوم الرياضية B (آفاق: علوم، تقنيات، إدارة)<br>
-`;
+if(best==="sci") html+="🎓 العلوم التجريبية (آفاق: الهندسة، الطب، العلوم الطبيعية)";
+if(best==="eco") html+="🎓 الاقتصاد والتدبير (آفاق: التجارة، الإدارة، المحاسبة)";
+if(best==="ad") html+="🎓 الآداب والعلوم الإنسانية (آفاق: التعليم، الصحافة، القانون)";
+if(best==="tech") html+="🎓 التخصصات التقنية (آفاق: IT، الإلكترونيات، الصناعة)";
 }
-if(best==="eco"){
-html=`
-🎓 الشعب الاقتصادية:<br>
-✅ الاقتصاد والتدبير (آفاق: التجارة، المحاسبة، الإدارة، التمويل)
-`;
-}
-if(best==="ad"){
-html=`
-🎓 الشعب الأدبية:<br>
-✅ الآداب والعلوم الإنسانية (آفاق: التعليم، الصحافة، القانون، التاريخ)<br>
-✅ التعليم الأصيل (آفاق: التعليم الابتدائي والثانوي)
-`;
-}
-if(best==="tech"){
-html=`
-🎓 الشعب التقنية:<br>
-✅ التخصصات التطبيقية والتقنية (آفاق: IT، الإلكترونيات، الصناعة)
-`;
-}
-}
-
-// ====== الباك ======
 if(level==="bac"){
-if(best==="sci"){
-html=`
-🏫 التوجيه الجامعي:<br>
-${avg>=16?"✅ CPGE (آفاق: الهندسة، العلوم التطبيقية)":"❌ CPGE (معدل ضعيف)"}<br>
-${avg>=14?"✅ FST (آفاق: العلوم التطبيقية، الهندسة)":"❌ FST"}<br>
-✅ كلية العلوم<br>
-✅ EST
-`;
-}
-if(best==="eco"){
-html=`
-🏫 التوجيه الجامعي:<br>
-${avg>=14?"✅ ENCG (آفاق: التجارة، الإدارة)":"❌ ENCG"}<br>
-${avg>=15?"✅ ISCAE (آفاق: المحاسبة، المالية، الإدارة)":"❌ ISCAE"}<br>
-✅ FSJES
-`;
-}
-if(best==="ad"){
-html=`
-🏫 التوجيه الجامعي:<br>
-✅ كلية الآداب (آفاق: التعليم، الإعلام، الترجمة)<br>
-✅ الدراسات الإسلامية (آفاق: التعليم الديني، الثقافة)<br>
-✅ التعليم الأصيل (آفاق: التدريس)
-`;
-}
-if(best==="tech"){
-html=`
-🏫 التوجيه المهني:<br>
-✅ OFPPT<br>
-✅ BTS<br>
-✅ FST تطبيقية
-`;
-}
-if(best==="cmc"){
-html=`
-🏫 التوجيه المهني:<br>
-✅ OFPPT – شعبة CMC (Compétences Métiers et Commerciales)<br>
-📊 مقارنة مع OFPPT العام:<br>
-- OFPPT: أكثر تطبيقي، يركز على المهارات التقنية والمهنية<br>
-- CMC: أكثر تجاري، يركز على التسيير والمبيعات والمهارات العملية<br>
-آفاق: العمل في التجارة، التسويق، المقاولات الصغيرة والمتوسطة
-`;
-}
+if(best==="sci") html+="🎓 CPGE/FST/EST (آفاق: الهندسة، العلوم التطبيقية)";
+if(best==="eco") html+="🎓 ENCG/ISCAE/FSJES (آفاق: التجارة، الإدارة، المحاسبة)";
+if(best==="ad") html+="🎓 كلية الآداب والدراسات الإسلامية (آفاق: التعليم، الثقافة، التدريس)";
+if(best==="tech") html+="🎓 OFPPT/BTS/FST تطبيقية (آفاق: IT، الصناعة)";
+if(best==="cmc") html+="🎓 OFPPT – CMC (آفاق: التجارة، التسويق، المقاولات الصغيرة والمتوسطة)";
 }
 
-output.innerHTML=html;
+document.getElementById("output").innerHTML = html;
 }
 
-function showCMC(){
-hideAll();
-result.classList.remove("hidden");
-
-output.innerHTML=`
-🏫 التوجيه المهني:<br>
-✅ OFPPT – شعبة CMC (Compétences Métiers et Commerciales)<br>
-📊 مقارنة مع OFPPT العام:<br>
-- OFPPT: أكثر تطبيقي، يركز على المهارات التقنية والمهنية<br>
-- CMC: أكثر تجاري، يركز على التسيير والمبيعات والمهارات العملية<br>
-آفاق: العمل في التجارة، التسويق، المقاولات الصغيرة والمتوسطة
-`;
-}
-
-function goHome(){hideAll();home.classList.remove("hidden")}
-function hideAll(){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"))}
+function showOFPPTCMC(){hideAll(); document.getElementById("ofppt-cmc").classList.remove("hidden");}
+function hideOFPPTCMC(){document.getElementById("ofppt-cmc").classList.add("hidden"); goHome();}
+function showComparison(){document.getElementById("comparison").classList.remove("hidden");}
+function hideComparison(){document.getElementById("comparison").classList.add("hidden");}
+function goHome(){hideAll(); document.getElementById("home").classList.remove("hidden");}
+function hideAll(){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));}
 </script>
 
 </body>
