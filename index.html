@@ -17,7 +17,6 @@ button:hover{background:#f57c00}
 input{padding:12px;width:90%;border-radius:12px;font-size:16px}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -49,12 +48,14 @@ input{padding:12px;width:90%;border-radius:12px;font-size:16px}
 <section id="result" class="hidden">
 <h2>🔎 النتيجة النهائية</h2>
 <div id="output" class="result"></div>
+<!-- زر جديد لـ OFPPT CMC -->
+<button onclick="showCMC()" style="background:#009688">➡️ معلومات OFPPT – CMC</button>
 <button onclick="goHome()">⬅ رجوع</button>
 </section>
 
 <script>
 let level="",i=0;
-let scores={sci:0,eco:0,ad:0,tech:0};
+let scores={sci:0,eco:0,ad:0,tech:0,cmc:0};
 
 const questions={
 "9":[
@@ -73,13 +74,14 @@ const questions={
 {q:"كتفضل الدراسة النظرية؟",t:"ad"},
 {q:"كتحب التخصصات العلمية؟",t:"sci"},
 {q:"كتشوف راسك فالتجارة؟",t:"eco"},
-{q:"كتفضل تكوين تطبيقي؟",t:"tech"}
+{q:"كتفضل تكوين تطبيقي؟",t:"tech"},
+{q:"كتحب التجارة والتسيير العملي؟",t:"cmc"}
 ]
 };
 
 function start(lv){
 level=lv;i=0;
-scores={sci:0,eco:0,ad:0,tech:0};
+scores={sci:0,eco:0,ad:0,tech:0,cmc:0};
 hideAll();quiz.classList.remove("hidden");
 showQ();
 }
@@ -173,9 +175,30 @@ html=`
 ✅ FST تطبيقية
 `;
 }
+if(best==="cmc"){
+html=`
+🏫 التوجيه المهني:<br>
+✅ OFPPT – شعبة CMC (Compétences Métiers et Commerciales)<br>
+آفاق المسار: العمل في التجارة، التسويق، المقاولات الصغيرة والمتوسطة
+`;
+}
 }
 
 output.innerHTML=html;
+}
+
+function showCMC(){
+hideAll();
+result.classList.remove("hidden");
+
+output.innerHTML=`
+🏫 التوجيه المهني:<br>
+✅ OFPPT – شعبة CMC (Compétences Métiers et Commerciales)<br>
+آفاق المسار: العمل في التجارة، التسويق، المقاولات الصغيرة والمتوسطة<br><br>
+📊 مقارنة مع باقي المسارات التقنية:<br>
+- OFPPT: أكثر تطبيقي، يركز على المهارات التقنية والمهنية<br>
+- CMC: أكثر تجاري، يركز على التسيير والمبيعات والمهارات العملية
+`;
 }
 
 function goHome(){hideAll();home.classList.remove("hidden")}
