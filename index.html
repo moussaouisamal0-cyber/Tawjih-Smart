@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>التوجيه الذكي</title>
+<style>
+body{margin:0;font-family:Tahoma;background:#eef2ff;text-align:center}
+header{background:linear-gradient(135deg,#3f51b5,#2196f3);color:#fff;padding:30px}
+section{max-width:950px;margin:30px auto;background:#fff;padding:30px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.15)}
+button{width:90%;padding:14px;margin:10px auto;border:none;border-radius:16px;background:#ff9800;color:#fff;font-size:16px;cursor:pointer}
+button:hover{background:#f57c00}
+.hidden{display:none}
+.back{background:#607d8b}
+.result{text-align:right;line-height:1.9;font-size:16px}
+.progress{height:10px;background:#ddd;border-radius:10px;margin:20px 0}
+.bar{height:100%;width:0%;background:#4caf50;border-radius:10px}
+input{padding:12px;width:90%;border-radius:12px;font-size:16px}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🎓 التوجيه الذكي</h1>
+<p>اختار مستقبلك بوعي، ماشي بالصدفة</p>
+</header>
+
+<section id="home">
+<h2>اختار المستوى الدراسي</h2>
+<button onclick="start('9')">تاسعة إعدادي</button>
+<button onclick="start('bac1')">أولى باك</button>
+<button onclick="start('bac')">البكالوريا</button>
+</section>
+
+<section id="quiz" class="hidden">
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h3 id="question"></h3>
+<button onclick="answer(1)">نعم</button>
+<button onclick="answer(0)">لا</button>
+<button class="back" onclick="goHome()">⬅ رجوع</button>
+</section>
+
+<section id="note" class="hidden">
+<h3>دخل المعدل ديالك</h3>
+<input type="number" id="avg" placeholder="مثال: 14.50">
+<button onclick="showResult()">عرض النتيجة</button>
+</section>
+
+<section id="result" class="hidden">
+<h2>🔎 النتيجة النهائية</h2>
+<div id="output" class="result"></div>
+<button onclick="goHome()">⬅ رجوع</button>
+</section>
+
+<script>
+let level="",i=0;
+let scores={sci:0,eco:0,ad:0,tech:0};
+
+const questions={
+"9":[
+{q:"كتفهم مزيان فالرياضيات؟",t:"sci"},
+{q:"كتحب التجارب والعلوم؟",t:"sci"},
+{q:"كتحب التنظيم والحساب؟",t:"eco"},
+{q:"كتحب القراءة واللغات؟",t:"ad"}
+],
+"bac1":[
+{q:"الرياضيات والفيزياء مزيانين عندك؟",t:"sci"},
+{q:"كتحب التحليل والمنطق؟",t:"sci"},
+{q:"كتحب المحاسبة والتسيير؟",t:"eco"},
+{q:"كتستمتع بالفلسفة واللغات؟",t:"ad"}
+],
+"bac":[
+{q:"كتفضل الدراسة النظرية؟",t:"ad"},
+{q:"كتحب التخصصات العلمية؟",t:"sci"},
+{q:"كتشوف راسك فالتجارة؟",t:"eco"},
+{q:"كتفضل تكوين تطبيقي؟",t:"tech"}
+]
+};
+
+function start(lv){
+level=lv;i=0;
+scores={sci:0,eco:0,ad:0,tech:0};
+hideAll();quiz.classList.remove("hidden");
+showQ();
+}
+
+function showQ(){
+question.textContent=questions[level][i].q;
+bar.style.width=(i/questions[level].length*100)+"%";
+}
+
+function answer(v){
+if(v) scores[questions[level][i].t]++;
+i++;
+i<questions[level].length?showQ():askNote();
+}
+
+function askNote(){
+hideAll();
+note.classList.remove("hidden");
+}
+
+function showResult(){
+hideAll();
+result.classList.remove("hidden");
+
+let avg=parseFloat(document.getElementById("avg").value)||0;
+let best=Object.keys(scores).sort((a,b)=>scores[b]-scores[a])[0];
+let html="";
+
+if(level==="9"){
+html=`
+🧭 المسار الأنسب ليك:<br><br>
+${best==="sci"?"🔬 المسار العلمي":
+best==="eco"?"📊 المسار الاقتصادي":
+best==="ad"?"📚 المسار الأدبي":
+"⚙️ المسار التقني"}
+`;
+}
+
+if(level==="bac1"){
+if(best==="sci"){
+html=`
+🎓 الشعبة المناسبة:<br>
+✅ العلوم التجريبية<br>
+${avg>=15?"✅ العلوم الرياضية A":""}
+${avg>=14?"✅ العلوم الرياضية B":""}
+`;
+}
+if(best==="eco"){
+html=`🎓 الشعبة المناسبة:<br>✅ الاقتصاد والتدبير`;
+}
+if(best==="ad"){
+html=`
+🎓 الشعبة المناسبة:<br>
+✅ الآداب والعلوم الإنسانية<br>
+✅ التعليم الأصيل
+`;
+}
+}
+
+if(level==="bac"){
+if(best==="sci"){
+html=`
+🏫 التوجيه الجامعي:<br>
+${avg>=16?"✅ CPGE":"❌ CPGE (معدل ضعيف)"}<br>
+${avg>=14?"✅ FST":"❌ FST"}<br>
+✅ كلية العلوم<br>
+✅ EST
+`;
+}
+if(best==="eco"){
+html=`
+🏫 التوجيه الجامعي:<br>
+${avg>=14?"✅ ENCG":"❌ ENCG"}<br>
+${avg>=15?"✅ ISCAE":"❌ ISCAE"}<br>
+✅ FSJES
+`;
+}
+if(best==="ad"){
+html=`
+🏫 التوجيه الجامعي:<br>
+✅ كلية الآداب<br>
+✅ الدراسات الإسلامية<br>
+✅ التعليم الأصيل
+`;
+}
+if(best==="tech"){
+html=`
+🏫 التوجيه المهني:<br>
+✅ OFPPT<br>
+✅ BTS<br>
+✅ FST تطبيقية
+`;
+}
+}
+
+output.innerHTML=html;
+}
+
+function goHome(){hideAll();home.classList.remove("hidden")}
+function hideAll(){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"))}
+</script>
+
+</body>
+</html>
